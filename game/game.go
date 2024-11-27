@@ -1,6 +1,8 @@
 package game
 
 import (
+	"image/color"
+	"log"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -8,8 +10,9 @@ import (
 )
 
 type Game struct {
-	greet string
-	idx   int
+	greet      string
+	idx        int
+	lastLetter time.Time
 }
 
 func NewGame(g string) Game {
@@ -20,13 +23,17 @@ func (g *Game) Update() error {
 	if g.idx >= len(g.greet) {
 		return nil
 	}
-	if time.Now().Second()%5 == 0 {
+	now := time.Now()
+	if now.Sub(g.lastLetter) >= 500*time.Millisecond {
 		g.idx++
+		g.lastLetter = now
+		log.Printf("%s, counter: %d", now, g.idx)
 	}
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	screen.Fill(color.RGBA{0xff, 0, 0, 0xff})
 	ebitenutil.DebugPrint(screen, g.greet[:g.idx])
 }
 
